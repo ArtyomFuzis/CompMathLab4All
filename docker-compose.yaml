@@ -1,0 +1,19 @@
+services:
+  equations_solver:
+    build:
+      context: lab1/
+      dockerfile: Dockerfile
+    image: equations_solver
+    hostname: equations_solver
+    env_file: equations_solver.env
+    restart: always
+    depends_on:
+      - rabbitmq
+  rabbitmq:
+    image: rabbitmq:4.0.5-management-alpine
+    hostname: rabbitmq
+    restart: always
+    env_file: "rabbit.env"   
+    ports: 
+      - 5672:5672
+      - 15672:15672    
