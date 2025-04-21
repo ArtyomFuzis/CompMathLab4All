@@ -40,6 +40,7 @@ def generate_graph(ch: BlockingChannel, method: Basic.Deliver, properties: pika.
     plt.plot(interval, list(map(func, interval)))
     #plt.show()
     plt.savefig(stringIObytes, format='jpg')
+    plt.clf()
     stringIObytes.seek(0)
     base64_jpgData = base64.b64encode(stringIObytes.read()).decode()
     ch.basic_publish(exchange="",
