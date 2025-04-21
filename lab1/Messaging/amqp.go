@@ -84,7 +84,7 @@ func createQueues() (*amqp.Queue, *amqp.Queue, error) {
 	}
 	return &q1, &q2, err
 }
-func SendToResponse(data Transfer.Lab1ReturnDTO) {
+func SendToResponse(data Transfer.Lab1ReturnDTO, chatId interface{}, approx interface{}) {
 	body, err := json.Marshal(data)
 	if err != nil {
 		log.Println("Unable to json encode message body:", err)
@@ -97,6 +97,7 @@ func SendToResponse(data Transfer.Lab1ReturnDTO) {
 		false,
 		amqp.Publishing{
 			ContentType: "application/json",
+			Headers:     amqp.Table{"Approx": approx, "ChatId": chatId},
 			Body:        body,
 		})
 	if err != nil {
@@ -125,7 +126,8 @@ func startConsumeAddService() {
 			continue
 		}
 		solution := Services.SolveLab1(res)
-		SendToResponse(solution)
+		println(message.Headers)
+		SendToResponse(solution, message.Headers["ChatId"], message.Headers["Approx"])
 	}
 }
 
