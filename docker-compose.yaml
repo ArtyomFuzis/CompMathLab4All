@@ -16,4 +16,14 @@ services:
     env_file: "rabbit.env"   
     ports: 
       - 5672:5672
-      - 15672:15672    
+      - 15672:15672   
+  graph:
+    build:
+      context: graphService/
+      dockerfile: Dockerfile
+    image: graph
+    hostname: graph
+    env_file: graph.env
+    restart: always
+    depends_on:
+      - rabbitmq
