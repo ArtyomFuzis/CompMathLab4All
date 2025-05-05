@@ -34,20 +34,31 @@ global from_graph
 def generate_graph(ch: BlockingChannel, method: Basic.Deliver, properties: pika.BasicProperties, body : str):
     stringIObytes = io.BytesIO()
     inp = json.loads(body)
-    plt.plot(inp['xs'], inp['ys'], 'o')
-    interval = get_interval(inp['xs'])
-    func = funcs(inp['approx'], inp['ks'])
-    plt.plot(interval, list(map(func, interval)))
-    #plt.show()
-    plt.savefig(stringIObytes, format='jpg')
-    plt.clf()
-    stringIObytes.seek(0)
-    base64_jpgData = base64.b64encode(stringIObytes.read()).decode()
-    ch.basic_publish(exchange="",
-            routing_key=from_graph,
-            body=json.dumps({"graph": base64_jpgData}),
-            properties=properties
-    )
+    if inp['type'] == 1:
+        plt.plot(inp['xs'], inp['ys'], 'o')
+        interval = get_interval(inp['xs'])
+        func = funcs(inp['approx'], inp['ks'])
+        plt.plot(interval, list(map(func, interval)))
+        plt.savefig(stringIObytes, format='jpg')
+        plt.clf()
+        stringIObytes.seek(0)
+        base64_jpgData = base64.b64encode(stringIObytes.read()).decode()
+        ch.basic_publish(exchange="",
+                routing_key=from_graph,
+                body=json.dumps({"graph": base64_jpgData, "type":"1"}),
+                properties=properties
+        )
+    elif inp['type'] == 2:
+        plt.plot(inp['inter_x'], inp['inter_y'], 'o')
+        plt.plot(inp['dots_x'], inp['dots_y'])
+        plt.savefig(stringIObytes, format='jpg')
+        plt.clf()
+        stringIObytes.seek(0)
+        base64_jpgData = base64.b64encode(stringIObytes.read()).decode()
+        ch.basic_publish(exchange="",
+                         routing_key=from_graph,
+                         body=json.dumps({"graph": base64_jpgData, "type": "2"}),
+                         properties=properties)
 
 if __name__ == "__main__":
     hostname = os.environ.get('RABBITMQ_HOST')
